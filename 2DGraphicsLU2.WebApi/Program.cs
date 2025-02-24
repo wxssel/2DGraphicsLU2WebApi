@@ -8,6 +8,13 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+var sqlConnectionString = builder.Configuration.GetValue<string>("SqlConnectionString"); 
+var sqlConnectionStringFound = !string.IsNullOrWhiteSpace(sqlConnectionString);
+
+
+
+app.MapGet("/", () => $"The API is up . Connection string found: {(sqlConnectionStringFound ? "yes" : "no")}");
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
