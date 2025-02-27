@@ -1,3 +1,6 @@
+using _2DGraphicsLU2.WebApi.Services;
+using Microsoft.AspNetCore.Identity;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,11 +9,21 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-var app = builder.Build();
-
-var sqlConnectionString = builder.Configuration.GetValue<string>("SqlConnectionString"); 
+var sqlConnectionString = builder.Configuration.GetValue<string>("SqlConnectionString");
 var sqlConnectionStringFound = !string.IsNullOrWhiteSpace(sqlConnectionString);
 
+builder.Services.AddAuthorization();
+builder.Services.AddIdentityApiEndpoints<IdentityUser>().AddDapperStores(options =>
+{
+    options.ConnectionString = sqlConnectionString;
+});
+
+// Adding the HTTP Context accessor to be injected. This is needed by the AspNetIdentityUserRepository
+// to resolve the current user.
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<IAuthenticationService, AspNetIdentityAuthenticationService>();
+
+var app = builder.Build();
 
 
 app.MapGet("/", () => $"The API is up . Connection string found: {(sqlConnectionStringFound ? "yes" : "no")}");
@@ -25,6 +38,9 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapGroup("/account")
+    .MapIdentityApi<IdentityUser>();
+
+app.MapControllers().RequireAuthorization();
 
 app.Run();
