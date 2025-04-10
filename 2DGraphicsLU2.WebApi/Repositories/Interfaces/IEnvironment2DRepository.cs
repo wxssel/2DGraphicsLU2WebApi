@@ -1,8 +1,8 @@
 ﻿using _2DGraphicsLU2.WebApi.Models;
 
-namespace _2DGraphicsLU2.WebApi.Repositories
+namespace _2DGraphicsLU2.WebApi.Repositories.Interfaces
 {
-    public interface IEnvironmentRepository
+    public interface IEnvironment2DRepository
     {
         Task<IEnumerable<Environment2D>> ReadAsync(string userId);
         Task<Environment2D?> ReadAsync(Guid environmentId, string userId);

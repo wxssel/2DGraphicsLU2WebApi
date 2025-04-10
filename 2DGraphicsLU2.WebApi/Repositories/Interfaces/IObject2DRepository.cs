@@ -1,6 +1,6 @@
 ﻿using _2DGraphicsLU2.WebApi.Models;
 
-namespace _2DGraphicsLU2.WebApi.Repositories
+namespace _2DGraphicsLU2.WebApi.Repositories.Interfaces
 {
     public interface IObject2DRepository
     {

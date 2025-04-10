@@ -13,7 +13,7 @@ namespace _2DGraphicsLU2.WebApi.Controllers
     public class Object2DController : ControllerBase
     {
         private readonly Object2DRepository _object2DRepository;
-        IAuthenticationService _authenticationService;
+        private IAuthenticationService _authenticationService;
 
         private readonly ILogger<Object2DController> _logger;
 
@@ -25,22 +25,25 @@ namespace _2DGraphicsLU2.WebApi.Controllers
         }
 
         [HttpGet(Name = "ReadObjects2D")]
-        public async Task<ActionResult<IEnumerable<Object2D>>> Get()
+        public async Task<ActionResult<IEnumerable<Object2D>>> Get(Guid environmentId)
         {
             var userId = _authenticationService.GetCurrentAuthenticatedUserId();
-            var Objects2D = await _object2DRepository.ReadAsync(userId);
+            if (userId == null)
+                return BadRequest();
+
+            var Objects2D = await _object2DRepository.ReadAsync(environmentId, userId);
             return Ok(Objects2D);
         }
 
-        [HttpGet("{object2DId}", Name = "ReadObject2D")]
-        public async Task<ActionResult<Object2D>> Get(Guid object2DId, string userId)
-        {
-            var object2D = await _object2DRepository.ReadAsync(object2DId, userId);
-            if (object2D == null)
-                return NotFound();
+        //[HttpGet("{object2DId}", Name = "ReadObject2D")]
+        //public async Task<ActionResult<Object2D>> Get(Guid object2DId, string userId)
+        //{
+        //    var object2D = await _object2DRepository.ReadAsync(object2DId, userId);
+        //    if (object2D == null)
+        //        return NotFound();
 
-            return Ok(object2D);
-        }
+        //    return Ok(object2D);
+        //}
 
         [HttpPost(Name = "CreateObject2D")]
         [Authorize]
@@ -48,6 +51,9 @@ namespace _2DGraphicsLU2.WebApi.Controllers
         {
 
             var userId = _authenticationService.GetCurrentAuthenticatedUserId();
+            if (userId == null)
+                return BadRequest();
+
             object2D.Id = Guid.NewGuid();
 
             var createdObject2D = await _object2DRepository.InsertAsync(environmentId, object2D, userId);
