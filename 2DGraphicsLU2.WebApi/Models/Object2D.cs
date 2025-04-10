@@ -12,6 +12,5 @@ namespace _2DGraphicsLU2.WebApi.Models
         public float ScaleY { get; set; }
         public float RotationZ { get; set; }
         public int SortingLayer { get; set; }
-        
     }
 }

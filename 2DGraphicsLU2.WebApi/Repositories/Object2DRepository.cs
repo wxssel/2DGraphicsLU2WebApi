@@ -14,11 +14,24 @@ namespace _2DGraphicsLU2.WebApi.Repositories
             this.sqlConnectionString = sqlConnectionString;
         }
 
-        public async Task<Object2D> InsertAsync(Object2D object2D, string userId)
+        public async Task<Object2D?> InsertAsync(Guid environmentId ,Object2D object2D, string userId)
         {
             using (var sqlConnection = new SqlConnection(sqlConnectionString))
             {
-                var environmentId = await sqlConnection.ExecuteAsync("INSERT INTO [Object2D] (Id, PrefabId, PositionX, PositionY, ScaleX, ScaleY, RotationZ, SortingLayer, EnviromentId) VALUES (@Id, @PrefabId, @PositionX, @PositionY, @ScaleX, @ScaleY, @RotationZ, @SortingLayer, @EnviromentId) WHERE userId = @userId", new { object2D, userId });
+                // Check if the environment exists and belongs to the user
+                var environment = await sqlConnection.QuerySingleOrDefaultAsync<Environment2D>("SELECT * FROM [Environment2D] " +
+                    "WHERE Id = @Id AND UserId = @UserId",
+                    new { id = environmentId, UserId = userId });
+
+                if (environment == null)
+                    return null;
+                
+                // Insert the object
+             await sqlConnection.ExecuteAsync(
+                    "INSERT INTO [Object2D] (Id, PrefabId, PositionX, PositionY, ScaleX, ScaleY, RotationZ, SortingLayer, EnvironmentId) " +
+                    "VALUES (@Id, @PrefabId, @PositionX, @PositionY, @ScaleX, @ScaleY, @RotationZ, @SortingLayer, @EnvironmentId)",
+                    new { object2D.Id, object2D.PrefabId, object2D.PositionX, object2D.PositionY, object2D.ScaleX, object2D.ScaleY, object2D.RotationZ, object2D.SortingLayer, EnvironmentId = environmentId });
+
                 return object2D;
             }
         }

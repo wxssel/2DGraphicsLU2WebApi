@@ -43,12 +43,19 @@ namespace _2DGraphicsLU2.WebApi.Controllers
         }
 
         [HttpPost(Name = "CreateObject2D")]
-        public async Task<ActionResult> Add(Object2D object2D, string userId)
+        [Authorize]
+        public async Task<ActionResult> Add(Guid environmentId, Object2D object2D)
         {
+
+            var userId = _authenticationService.GetCurrentAuthenticatedUserId();
             object2D.Id = Guid.NewGuid();
 
-            var createdObject2D = await _object2DRepository.InsertAsync(object2D, userId);
-            return Created();
+            var createdObject2D = await _object2DRepository.InsertAsync(environmentId, object2D, userId);
+            if (createdObject2D == null)
+            {
+                return BadRequest();
+            }
+            return Created("ReadObject2D", object2D);
         }
 
         [HttpPut("{object2DId}", Name = "UpdateObject2D")]
