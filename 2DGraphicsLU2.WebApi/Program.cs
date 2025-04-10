@@ -1,3 +1,4 @@
+using _2DGraphicsLU2.WebApi.Repositories;
 using _2DGraphicsLU2.WebApi.Services;
 using Microsoft.AspNetCore.Identity;
 
@@ -11,9 +12,23 @@ builder.Services.AddOpenApi();
 
 var sqlConnectionString = builder.Configuration.GetValue<string>("SqlConnectionString");
 var sqlConnectionStringFound = !string.IsNullOrWhiteSpace(sqlConnectionString);
+if (sqlConnectionStringFound)
+{
+    builder.Services.AddTransient<IEnvironment2DRepository, Environment2DRepository>(o => new Environment2DRepository(sqlConnectionString));
+    builder.Services.AddTransient<IObject2DRepository, Object2DRepository>(o => new Object2DRepository(sqlConnectionString));
+    builder.Services.AddTransient<IGuestRepository, GuestRepository>(o => new GuestRepository(sqlConnectionString));
+}
 
 builder.Services.AddAuthorization();
-builder.Services.AddIdentityApiEndpoints<IdentityUser>().AddDapperStores(options =>
+builder.Services.AddIdentityApiEndpoints<IdentityUser>(options =>
+{
+    options.Password.RequiredLength = 10;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+})
+ .AddDapperStores(options =>
 {
     options.ConnectionString = sqlConnectionString;
 });
