@@ -13,12 +13,6 @@ builder.Services.AddOpenApi();
 
 var sqlConnectionString = builder.Configuration.GetValue<string>("SqlConnectionString");
 var sqlConnectionStringFound = !string.IsNullOrWhiteSpace(sqlConnectionString);
-if (sqlConnectionStringFound)
-{
-    builder.Services.AddTransient<IEnvironment2DRepository, Environment2DRepository>(o => new Environment2DRepository(sqlConnectionString));
-    builder.Services.AddTransient<IObject2DRepository, Object2DRepository>(o => new Object2DRepository(sqlConnectionString));
-    builder.Services.AddTransient<IGuestRepository, GuestRepository>(o => new GuestRepository(sqlConnectionString));
-}
 
 builder.Services.AddAuthorization();
 builder.Services.AddIdentityApiEndpoints<IdentityUser>(options =>
